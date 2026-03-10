@@ -4,8 +4,8 @@
 // npm install @studio-freight/react-lenis
 
 import { ReactLenis } from '@studio-freight/react-lenis';
-import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence, useScroll, useTransform, useMotionValueEvent } from "framer-motion";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import Link from "next/link";
 import { MapPin, ArrowRight, ChevronLeft, ChevronRight, Heart } from "lucide-react";
 import Navbar from "@/components/Navbar";
@@ -78,7 +78,7 @@ const MediaCarousel = ({ media }: { media: string[] }) => {
                     <button onClick={(e) => { e.stopPropagation(); setCurrentIndex((p) => (p + 1) % media.length); }} className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 p-2 rounded-full text-[#113255] opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white z-10 shadow-lg">
                         <ChevronRight className="w-6 h-6" />
                     </button>
-                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10 flex-wrap justify-center px-2">
                         {media.map((_, idx) => (
                             <button key={idx} onClick={(e) => { e.stopPropagation(); setCurrentIndex(idx); }} className={`h-2.5 rounded-full transition-all duration-300 ${idx === currentIndex ? "bg-white w-8" : "bg-white/50 w-2.5 hover:bg-white/80"}`} />
                         ))}
@@ -89,76 +89,10 @@ const MediaCarousel = ({ media }: { media: string[] }) => {
     );
 };
 
-// ─── BACKGROUND VIDEO SEQUENCE ON SCROLL ───────────────────────────────────
-const NUM_FRAMES = 50; // Total de frames configurável
-const FrameSequence = ({ scrollProgress }: { scrollProgress: any }) => {
-    const canvasRef = useRef<HTMLCanvasElement>(null);
-    const [images, setImages] = useState<HTMLImageElement[]>([]);
-
-    useEffect(() => {
-        const loadedImages: HTMLImageElement[] = [];
-        let loadedCount = 0;
-
-        for (let i = 1; i <= NUM_FRAMES; i++) {
-            const img = new Image();
-            // Pads the number to 2 digits. e.g.: 1 -> 01, 15 -> 15
-            const frameNum = i.toString().padStart(2, '0');
-            img.src = `/logistica/${frameNum}.png`;
-
-            img.onload = () => {
-                loadedCount++;
-                // Render the first frame as soon as it's loaded to avoid blank flash
-                if (loadedCount === 1 && i === 1 && canvasRef.current) {
-                    const ctx = canvasRef.current.getContext("2d");
-                    ctx?.drawImage(img, 0, 0, 1920, 1080);
-                }
-            };
-
-            img.onerror = () => {
-                console.warn(`Failed to load image: ${img.src}`);
-            };
-
-            loadedImages.push(img);
-        }
-        setImages(loadedImages);
-    }, []);
-
-    useMotionValueEvent(scrollProgress, "change", (latest: number) => {
-        if (!canvasRef.current || images.length === 0) return;
-
-        // Map progress (0 -> 1) to frame index (0 -> NUM_FRAMES - 1)
-        const frameIndex = Math.min(NUM_FRAMES - 1, Math.floor(latest * NUM_FRAMES));
-        const img = images[frameIndex];
-
-        if (img && img.complete && img.naturalHeight !== 0) {
-            const ctx = canvasRef.current.getContext("2d");
-            if (ctx) {
-                // Desenha a imagem mantendo uma proporção de 16:9 base.
-                // O modo CSS object-cover tratará do responsive.
-                ctx.drawImage(img, 0, 0, 1920, 1080);
-            }
-        }
-    });
-
-    return (
-        <canvas
-            ref={canvasRef}
-            width={1920}
-            height={1080}
-            className="absolute inset-0 w-full h-full object-cover object-center"
-            style={{
-                // Optimizations for canvas rendering in Safari/iOS
-                willChange: "transform",
-            }}
-        />
-    );
-};
-
 
 // ─── MAIN PAGE ──────────────────────────────────────────────────────────────
 export default function Impacto() {
     const t = useTranslations('ImpactoPage');
-    const heroSectionRef = useRef(null);
 
     // 1. PROGRESSO DO SCROLL PARA A PÁGINA INTEIRA
     const { scrollYProgress } = useScroll();
@@ -169,12 +103,6 @@ export default function Impacto() {
         [0, 0.3, 0.6, 0.9],
         ["#f8f6f1", "#f0f4f8", "#f0fdf4", "#f8f6f1"]
     );
-
-    // 3. PROGRESSO ESPECÍFICO DO SCROLL APENAS PARA A HERO SECTION
-    const { scrollYProgress: heroScrollProgress } = useScroll({
-        target: heroSectionRef,
-        offset: ["start start", "end end"]
-    });
 
     const stats = [
         { value: t('stat1_val'), label: t('stat1_label') },
@@ -333,7 +261,26 @@ export default function Impacto() {
         {
             year: t('g4_year'),
             phases: [
-                { phaseNum: 2, title: t('g4_p2_title'), desc: t('g4_p2_desc'), location: t('g4_p2_loc'), media: ["https://i.imgur.com/cDvcu8b.jpeg", "https://via.placeholder.com/800x600/113255/FFFFFF?text=Hixikanwe+Foto+2"] },
+                {
+                    phaseNum: 2,
+                    title: t('g4_p2_title'),
+                    desc: t('g4_p2_desc'),
+                    location: t('g4_p2_loc'),
+                    media: [
+                        "https://i.imgur.com/q9WXcSe.jpeg",
+                        "https://i.imgur.com/gA5Zm6x.jpeg",
+                        "https://i.imgur.com/QqUJ2XY.jpeg",
+                        "https://i.imgur.com/4DxOT8q.jpeg",
+                        "https://i.imgur.com/RiQjzR6.jpeg",
+                        "https://i.imgur.com/LlBhwum.jpeg",
+                        "https://i.imgur.com/EIeXWAd.jpeg",
+                        "https://i.imgur.com/68A7am8.jpeg",
+                        "https://i.imgur.com/wz1xEks.jpeg",
+                        "https://i.imgur.com/NtpvKUh.jpeg",
+                        "https://i.imgur.com/j4ehgJ4.jpeg",
+                        "https://i.imgur.com/9WP6fO9.jpeg"
+                    ]
+                },
                 { phaseNum: 1, title: t('g4_p1_title'), desc: t('g4_p1_desc'), location: t('g4_p1_loc'), media: ["https://i.imgur.com/UBPWOUe.jpeg", "https://i.imgur.com/QwNKEf2.jpeg", "https://i.imgur.com/q9H352p.jpeg", "https://i.imgur.com/5Rb99pR.jpeg", "https://i.imgur.com/zQwFMRP.jpeg", "https://i.imgur.com/0Ar8YEt.jpeg", "https://i.imgur.com/wbOLnUQ.jpeg", "https://i.imgur.com/xumNWeS.jpeg", "https://i.imgur.com/G97RaKE.jpeg", "https://i.imgur.com/W1LWDPq.jpeg", "https://i.imgur.com/UXqHvXR.jpeg"] },
             ],
         },
@@ -352,74 +299,70 @@ export default function Impacto() {
 
                 <Navbar />
 
-                {/* ── CINEMATIC SCROLL HERO SECTION ── */}
-                {/* O contêiner aumenta o espaço de scroll com h-[300vh].
-                  O bloco fixo "sticky" vai ficar na tela através da altura 'h-screen'
-                  enquanto percorrermos os 300vh do parent.
-                */}
-                <div ref={heroSectionRef} className="relative h-[300vh] w-full">
+                {/* ── HERO SECTION ESTÁTICO ── */}
+                <div className="relative h-screen w-full flex flex-col items-center justify-center text-center px-4 sm:px-8 overflow-hidden">
 
-                    {/* Elemento fixo durante o scroll da hero */}
-                    <div className="sticky top-0 h-screen w-full overflow-hidden">
-
-                        {/* Canvas sequence video on scroll */}
-                        <FrameSequence scrollProgress={heroScrollProgress} />
-
-                        {/* Overlay: Gradiente escuro garantindo contraste / legibilidade */}
+                    {/* Imagem de Fundo Estática com Gradiente */}
+                    <div className="absolute inset-0 z-0">
+                        <img
+                            src="https://i.imgur.com/SncAEMv.jpeg"
+                            alt="Fundação Cantoná Impacto"
+                            className="w-full h-full object-cover"
+                        />
                         <div className="absolute inset-0 bg-gradient-to-b from-[#113255]/70 via-[#113255]/50 to-[#0a1f33]/80 z-10" />
+                    </div>
 
-                        {/* Conteúdo do Hero */}
-                        <div className="relative z-30 h-full flex flex-col items-center justify-center text-center px-4 sm:px-8">
+                    {/* Conteúdo do Hero */}
+                    <div className="relative z-30 flex flex-col items-center justify-center w-full max-w-6xl">
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+                            className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-md text-white px-5 py-2 rounded-full text-sm font-semibold border border-white/25 shadow-lg mb-6"
+                        >
+                            <Heart className="w-4 h-4 text-[#d4af37] fill-[#d4af37]" />
+                            {t('hero_badge')}
+                        </motion.div>
+
+                        <motion.h1
+                            initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
+                            className="text-5xl md:text-7xl lg:text-8xl font-black text-white mb-6 leading-[1.05] tracking-tight"
+                        >
+                            {t('hero_title_1')}{" "}<br className="hidden sm:block" />
+                            <span className="text-[#3a7d44]">{t('hero_title_2')}</span> {t('hero_title_3')}{" "}
+                            <span className="text-[#d4af37]">{t('hero_title_4')}</span>
+                        </motion.h1>
+
+                        <motion.p
+                            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
+                            className="text-lg md:text-xl text-gray-200 max-w-2xl leading-relaxed mb-10"
+                        >
+                            {t('hero_subtitle')}
+                        </motion.p>
+
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.65 }}
+                            className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8"
+                        >
+                            {stats.map((stat, i) => (
+                                <div key={i} className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl px-6 py-4 text-center hover:bg-white/20 transition-colors">
+                                    <p className="text-3xl font-black text-white">{stat.value}</p>
+                                    <p className="text-xs text-gray-300 mt-1 font-medium uppercase tracking-wider">{stat.label}</p>
+                                </div>
+                            ))}
+                        </motion.div>
+
+                        <motion.div
+                            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }}
+                            className="absolute bottom-[-60px] md:bottom-[-80px] left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 cursor-pointer"
+                            onClick={() => window.scrollBy({ top: window.innerHeight, behavior: 'smooth' })}
+                        >
+                            <p className="text-white/60 text-xs uppercase tracking-widest">{t('scroll_hint')}</p>
                             <motion.div
-                                initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-                                className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-md text-white px-5 py-2 rounded-full text-sm font-semibold border border-white/25 shadow-lg mb-6"
+                                animate={{ y: [0, 8, 0] }} transition={{ repeat: Infinity, duration: 1.5 }}
+                                className="w-5 h-8 border-2 border-white/40 rounded-full flex items-start justify-center pt-1.5"
                             >
-                                <Heart className="w-4 h-4 text-[#d4af37] fill-[#d4af37]" />
-                                {t('hero_badge')}
+                                <div className="w-1 h-2 bg-[#d4af37] rounded-full" />
                             </motion.div>
-
-                            <motion.h1
-                                initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
-                                className="text-5xl md:text-7xl lg:text-8xl font-black text-white mb-6 leading-[1.05] tracking-tight"
-                            >
-                                {t('hero_title_1')}{" "}<br className="hidden sm:block" />
-                                <span className="text-[#3a7d44]">{t('hero_title_2')}</span> {t('hero_title_3')}{" "}
-                                <span className="text-[#d4af37]">{t('hero_title_4')}</span>
-                            </motion.h1>
-
-                            <motion.p
-                                initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
-                                className="text-lg md:text-xl text-gray-200 max-w-2xl leading-relaxed mb-10"
-                            >
-                                {t('hero_subtitle')}
-                            </motion.p>
-
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.65 }}
-                                className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8"
-                            >
-                                {stats.map((stat, i) => (
-                                    <div key={i} className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl px-6 py-4 text-center hover:bg-white/20 transition-colors">
-                                        <p className="text-3xl font-black text-white">{stat.value}</p>
-                                        <p className="text-xs text-gray-300 mt-1 font-medium uppercase tracking-wider">{stat.label}</p>
-                                    </div>
-                                ))}
-                            </motion.div>
-
-                            <motion.div
-                                initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }}
-                                className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 cursor-pointer"
-                                onClick={() => window.scrollBy({ top: window.innerHeight, behavior: 'smooth' })}
-                            >
-                                <p className="text-white/60 text-xs uppercase tracking-widest">{t('scroll_hint')}</p>
-                                <motion.div
-                                    animate={{ y: [0, 8, 0] }} transition={{ repeat: Infinity, duration: 1.5 }}
-                                    className="w-5 h-8 border-2 border-white/40 rounded-full flex items-start justify-center pt-1.5"
-                                >
-                                    <div className="w-1 h-2 bg-[#d4af37] rounded-full" />
-                                </motion.div>
-                            </motion.div>
-                        </div>
+                        </motion.div>
                     </div>
                 </div>
 

@@ -7,12 +7,14 @@ import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { Calendar, ArrowRight, Volume2, VolumeX } from "lucide-react";
 import { useTranslations } from 'next-intl';
+import Link from 'next/link'; // Importação do Link adicionada
 
 const VideoPlayer = ({ src }: { src: string }) => {
     const [isMuted, setIsMuted] = useState(true);
     const videoRef = useRef<HTMLVideoElement>(null);
     const toggleMute = (e: React.MouseEvent) => {
         e.preventDefault();
+        e.stopPropagation(); // Evita que o clique no mute acione links por trás
         if (videoRef.current) { videoRef.current.muted = !isMuted; setIsMuted(!isMuted); }
     };
     return (
@@ -28,9 +30,9 @@ const VideoPlayer = ({ src }: { src: string }) => {
 export default function ImpactSection() {
     const t = useTranslations('Impact');
     const impactData = [
-        { id: 1, tag: t('item1_tag'), title: t('item1_title'), desc: t('item1_desc'), date: t('item1_date'), video: "/doacao.mp4", size: "md:col-span-2 md:row-span-2" },
-        { id: 2, tag: t('item2_tag'), title: t('item2_title'), desc: t('item2_desc'), date: t('item2_date'), image: "https://i.imgur.com/BQ4K045.jpeg", size: "col-span-1" },
-        { id: 3, tag: t('item3_tag'), title: t('item3_title'), desc: t('item3_desc'), date: t('item3_date'), image: "https://i.imgur.com/kmk0eh0.jpeg", size: "col-span-1" },
+        { id: 1, tag: t('item1_tag'), title: t('item1_title'), desc: t('item1_desc'), date: t('item1_date'), video: "/doacao.mp4", size: "md:col-span-2 md:row-span-2", link: "/trabalhos" },
+        { id: 2, tag: t('item2_tag'), title: t('item2_title'), desc: t('item2_desc'), date: t('item2_date'), image: "https://i.imgur.com/BQ4K045.jpeg", size: "col-span-1", link: "/trabalhos" },
+        { id: 3, tag: t('item3_tag'), title: t('item3_title'), desc: t('item3_desc'), date: t('item3_date'), image: "https://i.imgur.com/kmk0eh0.jpeg", size: "col-span-1", link: "/trabalhos" },
     ];
 
     return (
@@ -57,20 +59,29 @@ export default function ImpactSection() {
                                 ? <VideoPlayer src={item.video} />
                                 : <div className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" style={{ backgroundImage: `url(${item.image})` }} />
                             }
-                            <div className="absolute inset-0 bg-gradient-to-t from-[#113255]/95 via-[#113255]/50 to-transparent" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-[#113255]/95 via-[#113255]/50 to-transparent pointer-events-none" />
+
                             <div className="absolute inset-0 p-6 flex flex-col justify-end z-10 pointer-events-none">
                                 <div className="self-start bg-white/95 text-[#113255] px-2.5 py-1 rounded-lg text-[10px] font-bold mb-auto mt-2 shadow-sm pointer-events-auto">
                                     {item.tag}
                                 </div>
-                                <h3 className="text-xl md:text-2xl font-bold text-white mb-1.5 leading-snug">{item.title}</h3>
+
+                                {/* Link adicionado no título para maior facilidade de clique */}
+                                <Link href={item.link} className="pointer-events-auto w-fit">
+                                    <h3 className="text-xl md:text-2xl font-bold text-white mb-1.5 leading-snug hover:text-[#d4af37] transition-colors">{item.title}</h3>
+                                </Link>
+
                                 <p className="text-gray-200 text-xs md:text-sm mb-3 line-clamp-2">{item.desc}</p>
+
                                 <div className="flex items-center justify-between pt-3 border-t border-white/20 pointer-events-auto">
                                     <div className="flex items-center gap-1.5 text-white/80 text-xs font-medium">
                                         <Calendar className="w-3.5 h-3.5" />{item.date}
                                     </div>
-                                    <div className="flex items-center gap-1 text-white text-xs font-semibold group-hover:text-[#d4af37] transition-colors cursor-pointer">
-                                        {t('read_more')} <ArrowRight className="w-3.5 h-3.5" />
-                                    </div>
+
+                                    {/* Link adicionado no botão Ler Mais */}
+                                    <Link href={item.link} className="flex items-center gap-1 text-white text-xs font-semibold hover:text-[#d4af37] transition-colors group/link cursor-pointer">
+                                        {t('read_more')} <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover/link:translate-x-1" />
+                                    </Link>
                                 </div>
                             </div>
                         </motion.div>

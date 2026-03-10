@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { ArrowRight, Truck, Users, CheckCircle, Quote, Volume2, VolumeX, Maximize, MapPin, Mail, Phone } from "lucide-react";
+// Adicionados ChevronLeft e ChevronRight
+import { ArrowRight, Truck, Users, CheckCircle, Quote, Volume2, VolumeX, Maximize, MapPin, Mail, Phone, ChevronLeft, ChevronRight } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import ImpactSection from "@/components/ImpactSection";
 import DonationSection from "@/components/DonationSection";
@@ -19,6 +20,7 @@ const AnimatedBackground = () => (
 );
 
 const heroImages = [
+  "https://i.imgur.com/8tD4DWr.jpeg",
   "https://i.imgur.com/wz6xHwK.jpeg", "https://i.imgur.com/SncAEMv.jpeg", "https://i.imgur.com/7WwYd3z.jpeg",
   "https://i.imgur.com/Rbf1aHI.jpeg", "https://i.imgur.com/JgU5KXO.jpeg", "https://i.imgur.com/YKMx6a4.jpeg",
   "https://i.imgur.com/3StocjA.jpeg", "https://i.imgur.com/4UBkLJM.jpeg", "https://i.imgur.com/GNv4wDa.jpeg",
@@ -31,10 +33,11 @@ export default function Home() {
   const [isMuted, setIsMuted] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
 
+  // O useEffect agora reinicia os 5 segundos sempre que a imagem muda (seja automático ou por clique)
   useEffect(() => {
     const timer = setInterval(() => setCurrentImage((prev) => (prev + 1) % heroImages.length), 5000);
     return () => clearInterval(timer);
-  }, []);
+  }, [currentImage]);
 
   const toggleFullscreen = () => {
     if (videoRef.current) {
@@ -44,12 +47,21 @@ export default function Home() {
     }
   };
 
+  // Funções de navegação do carrossel
+  const nextImage = () => {
+    setCurrentImage((prev) => (prev + 1) % heroImages.length);
+  };
+
+  const prevImage = () => {
+    setCurrentImage((prev) => (prev === 0 ? heroImages.length - 1 : prev - 1));
+  };
+
   return (
     <main className="min-h-screen bg-white">
       <Navbar />
 
       {/* ── HERO ── */}
-      <div className="relative min-h-screen w-full overflow-hidden flex items-center">
+      <div className="relative min-h-screen w-full overflow-hidden flex items-center group">
         <AnimatePresence mode="popLayout">
           <motion.img key={currentImage} src={heroImages[currentImage]}
             initial={{ opacity: 0, scale: 1.08 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
@@ -58,8 +70,26 @@ export default function Home() {
         </AnimatePresence>
         <div className="absolute inset-0 bg-gradient-to-r from-[#113255]/90 via-[#113255]/50 to-transparent z-10" />
 
-        <div className="relative z-20 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full pt-24 pb-16">
-          <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 1, delay: 0.5 }} className="max-w-2xl space-y-5">
+        {/* ── Setas de Navegação ── */}
+        <button
+          onClick={prevImage}
+          className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-30 p-2 md:p-3 rounded-full bg-black/20 hover:bg-black/50 text-white backdrop-blur-sm transition-all border border-white/10 opacity-0 group-hover:opacity-100 transform -translate-x-4 group-hover:translate-x-0"
+          aria-label="Imagem Anterior"
+        >
+          <ChevronLeft className="w-6 h-6 md:w-8 md:h-8" />
+        </button>
+
+        <button
+          onClick={nextImage}
+          className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-30 p-2 md:p-3 rounded-full bg-black/20 hover:bg-black/50 text-white backdrop-blur-sm transition-all border border-white/10 opacity-0 group-hover:opacity-100 transform translate-x-4 group-hover:translate-x-0"
+          aria-label="Próxima Imagem"
+        >
+          <ChevronRight className="w-6 h-6 md:w-8 md:h-8" />
+        </button>
+
+        <div className="relative z-20 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full pt-24 pb-16 pointer-events-none">
+          {/* pointer-events-auto na div interna permite que os botões dentro dela sejam clicados, mas não bloqueia cliques nas setas */}
+          <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 1, delay: 0.5 }} className="max-w-2xl space-y-5 pointer-events-auto">
             <div className="inline-block bg-white/20 backdrop-blur-md text-white px-3 py-1 rounded-full text-xs font-semibold tracking-wide border border-white/30 shadow-md">
               {t('hero_badge')}
             </div>
