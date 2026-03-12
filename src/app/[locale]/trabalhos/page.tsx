@@ -116,23 +116,25 @@ export default function Impacto() {
             year: t('g1_year'),
             phases: [
                 {
-                    phaseNum: 15,
+                    phaseNum: 15, // VACINAÇÃO (Saúde)
                     title: t('g1_p15_title'),
                     desc: t('g1_p15_desc'),
                     location: t('g1_p15_loc'),
                     media: [
-                        "https://i.imgur.com/6ri5bbH.jpeg",
-                        "https://i.imgur.com/0ptix17.jpeg"
+                        "https://i.imgur.com/OFPrtBS.jpeg",
+                        "https://i.imgur.com/HA7KfBC.jpeg",
+                        "https://i.imgur.com/6hMgXFV.jpeg"
                     ]
                 },
                 {
-                    phaseNum: 14,
+                    phaseNum: 14, // BOLSAS DE ESTUDO (Educação)
                     title: t('g1_p14_title'),
                     desc: t('g1_p14_desc'),
                     location: t('g1_p14_loc'),
                     media: [
-                        "https://i.imgur.com/TSB9c6K.jpeg",
-                        "https://i.imgur.com/FJhJwf2.jpeg"
+                        "https://i.imgur.com/cTI22IT.jpeg",
+                        "https://i.imgur.com/OvNKV0c.png",
+                        "https://i.imgur.com/xRJC33p.png"
                     ]
                 },
                 {

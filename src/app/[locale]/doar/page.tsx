@@ -6,12 +6,13 @@ import Link from "next/link";
 import {
     Smartphone, Landmark, UploadCloud, CheckCircle2,
     Loader2, Lock, ArrowRight, AlertCircle, ShieldCheck,
-    Heart, MapPin, Mail, Phone, Sparkles,
+    Heart, MapPin, Mail, Phone, Sparkles, Copy, Check
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { useTranslations } from 'next-intl';
 
-const presets = ["500", "1000", "2500", "5000"];
+// ── NOVOS VALORES PREDEFINIDOS ──
+const presets = ["20", "50", "100", "200", "500", "1000"];
 
 export default function Doacoes() {
     const t = useTranslations('Doar');
@@ -24,6 +25,10 @@ export default function Doacoes() {
     const [mpesaError, setMpesaError] = useState("");
     const [bankFile, setBankFile] = useState<File | null>(null);
     const [bankStatus, setBankStatus] = useState("idle");
+
+    // Estados para os botões de copiar
+    const [copiedNIB, setCopiedNIB] = useState(false);
+    const [copiedIBAN, setCopiedIBAN] = useState(false);
 
     const trustBadges = [
         { icon: <ShieldCheck className="w-4 h-4" />, label: t('badge_secure') },
@@ -50,6 +55,19 @@ export default function Doacoes() {
         e.preventDefault();
         setBankStatus("loading");
         setTimeout(() => setBankStatus("success"), 1500);
+    };
+
+    // Funções para copiar
+    const copyNIB = (text: string) => {
+        navigator.clipboard.writeText(text);
+        setCopiedNIB(true);
+        setTimeout(() => setCopiedNIB(false), 2000);
+    };
+
+    const copyIBAN = (text: string) => {
+        navigator.clipboard.writeText(text);
+        setCopiedIBAN(true);
+        setTimeout(() => setCopiedIBAN(false), 2000);
     };
 
     return (
@@ -159,7 +177,8 @@ export default function Doacoes() {
                                         <form onSubmit={handleMpesaSubmit} className="space-y-5 max-w-md">
                                             <div className="space-y-2">
                                                 <label className="block text-xs font-bold text-[#113255]">{t('mpesa_amount_label')}</label>
-                                                <div className="grid grid-cols-4 gap-2 mb-2">
+                                                {/* ── Alterado para grid-cols-3 para acomodar os 6 novos valores ── */}
+                                                <div className="grid grid-cols-3 gap-2 mb-2">
                                                     {presets.map(p => (
                                                         <button key={p} type="button" onClick={() => setMpesaAmount(p)}
                                                             className={`py-2 rounded-xl text-xs font-bold border-2 transition-all ${mpesaAmount === p ? "bg-[#3a7d44] text-white border-[#3a7d44]" : "bg-gray-50 text-gray-600 border-gray-100 hover:border-[#3a7d44]/40 hover:bg-green-50"}`}>
@@ -251,28 +270,76 @@ export default function Doacoes() {
 
                                     {bankStatus === "idle" && (
                                         <div className="grid md:grid-cols-2 gap-6">
-                                            <div className="relative bg-gradient-to-br from-[#0a1f33] to-[#1a4b80] p-6 rounded-2xl text-white overflow-hidden">
-                                                <div className="absolute -top-6 -right-6 w-28 h-28 rounded-full bg-white/5" />
-                                                <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#d4af37]/60 via-[#d4af37] to-[#d4af37]/60" />
-                                                <Landmark className="w-6 h-6 text-[#d4af37] mb-4 opacity-90 relative z-10" />
-                                                <div className="relative z-10 space-y-4">
-                                                    <div>
-                                                        <p className="text-white/50 uppercase tracking-widest text-[10px] font-bold mb-0.5">{t('bank_holder')}</p>
-                                                        <p className="text-sm font-bold">Fundação Cantoná</p>
+
+                                            {/* ── CARTÃO DE INFORMAÇÕES BANCÁRIAS (SÓLIDO) ── */}
+                                            <div className="relative bg-gradient-to-br from-[#113255] to-[#254b73] p-6 rounded-2xl text-white overflow-hidden shadow-lg border border-[#1a4b80]">
+                                                {/* Elementos decorativos */}
+                                                <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-white/5 blur-xl" />
+                                                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#d4af37] to-transparent opacity-80" />
+
+                                                <div className="relative z-10 flex flex-col h-full">
+                                                    {/* Nome do Banco */}
+                                                    <div className="flex items-center justify-between mb-5 pb-4 border-b border-white/10">
+                                                        <div className="flex items-center gap-2">
+                                                            <Landmark className="w-5 h-5 text-[#d4af37]" />
+                                                            <span className="font-bold tracking-wide text-sm">Microbanco Sólido</span>
+                                                        </div>
+                                                        <span className="text-[10px] font-mono bg-white/10 px-2 py-1 rounded">MZN</span>
                                                     </div>
-                                                    <div>
-                                                        <p className="text-white/50 uppercase tracking-widest text-[10px] font-bold mb-0.5">{t('bank_name')}</p>
-                                                        <p className="text-lg font-mono font-bold tracking-wider">3869875910001</p>
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-white/50 uppercase tracking-widest text-[10px] font-bold mb-1">{t('bank_nib')}</p>
-                                                        <p className="text-xs font-mono tracking-widest bg-white/10 px-3 py-2.5 rounded-xl border border-white/15 leading-relaxed">
-                                                            0034 0000 3869 8759 1015 0
-                                                        </p>
+
+                                                    <div className="space-y-4 flex-grow">
+                                                        {/* Titular e Conta em Destaque */}
+                                                        <div className="flex justify-between items-start">
+                                                            <div>
+                                                                <p className="text-white/60 uppercase tracking-widest text-[9px] font-bold mb-1">Titular</p>
+                                                                <p className="text-sm font-bold tracking-wide">Fundação Cantoná</p>
+                                                            </div>
+                                                            <div className="text-right">
+                                                                <p className="text-white/60 uppercase tracking-widest text-[9px] font-bold mb-1">Nº da Conta</p>
+                                                                <p className="text-base font-mono font-bold text-[#d4af37]">620801</p>
+                                                            </div>
+                                                        </div>
+
+                                                        {/* NIB (Com botão de copiar) */}
+                                                        <div>
+                                                            <p className="text-white/60 uppercase tracking-widest text-[9px] font-bold mb-1">NIB</p>
+                                                            <div className="flex items-center justify-between bg-black/20 p-2.5 rounded-xl border border-white/5 group">
+                                                                <p className="text-sm font-mono tracking-widest">0072 0000 0000 0620 8017 5</p>
+                                                                <button
+                                                                    onClick={(e) => { e.preventDefault(); copyNIB('007200000000062080175'); }}
+                                                                    className="p-1.5 rounded-lg hover:bg-white/10 transition-colors"
+                                                                    title="Copiar NIB"
+                                                                >
+                                                                    {copiedNIB ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4 text-white/60 group-hover:text-white" />}
+                                                                </button>
+                                                            </div>
+                                                        </div>
+
+                                                        {/* IBAN (Com botão de copiar) */}
+                                                        <div>
+                                                            <p className="text-white/60 uppercase tracking-widest text-[9px] font-bold mb-1">IBAN</p>
+                                                            <div className="flex items-center justify-between bg-black/20 p-2.5 rounded-xl border border-white/5 group">
+                                                                <p className="text-[11px] font-mono tracking-widest">MZ59 0072 0000 0000 0620 8017 5</p>
+                                                                <button
+                                                                    onClick={(e) => { e.preventDefault(); copyIBAN('MZ59007200000000062080175'); }}
+                                                                    className="p-1.5 rounded-lg hover:bg-white/10 transition-colors"
+                                                                    title="Copiar IBAN"
+                                                                >
+                                                                    {copiedIBAN ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4 text-white/60 group-hover:text-white" />}
+                                                                </button>
+                                                            </div>
+                                                        </div>
+
+                                                        {/* SWIFT */}
+                                                        <div className="pt-2 border-t border-white/10">
+                                                            <p className="text-white/60 uppercase tracking-widest text-[9px] font-bold mb-0.5">SWIFT</p>
+                                                            <p className="text-xs font-mono opacity-90">SOLXMZMA</p>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
 
+                                            {/* Formulário de Upload do Comprovativo */}
                                             <form onSubmit={handleBankSubmit} className="flex flex-col gap-4">
                                                 <label className="relative flex-grow border-2 border-dashed border-blue-200 rounded-2xl p-6 hover:bg-blue-50/50 hover:border-[#113255]/40 text-center cursor-pointer transition-all flex flex-col items-center justify-center group bg-gray-50/50 min-h-[150px]">
                                                     <input type="file" required accept="image/*,.pdf" onChange={(e) => setBankFile(e.target.files?.[0] || null)} className="absolute inset-0 opacity-0 cursor-pointer z-10" />
