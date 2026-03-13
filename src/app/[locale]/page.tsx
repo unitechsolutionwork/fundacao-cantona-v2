@@ -20,7 +20,7 @@ const AnimatedBackground = () => (
 );
 
 const heroImages = [
-  "https://i.imgur.com/8tD4DWr.jpeg",
+  "https://i.imgur.com/uARHvZh.png",
   "https://i.imgur.com/wz6xHwK.jpeg", "https://i.imgur.com/SncAEMv.jpeg", "https://i.imgur.com/7WwYd3z.jpeg",
   "https://i.imgur.com/Rbf1aHI.jpeg", "https://i.imgur.com/JgU5KXO.jpeg", "https://i.imgur.com/YKMx6a4.jpeg",
   "https://i.imgur.com/3StocjA.jpeg", "https://i.imgur.com/4UBkLJM.jpeg", "https://i.imgur.com/GNv4wDa.jpeg",
